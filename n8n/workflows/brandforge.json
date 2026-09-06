@@ -1,0 +1,585 @@
+{
+  "name": "BrandForge — Brand to Campaign",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "brandforge",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bf-node-001",
+      "name": "01 Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -620,
+        300
+      ],
+      "webhookId": "brandforge-intake"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Reject malformed calls before any downstream work is scheduled.\nconst body = $input.first().json.body ?? $input.first().json;\nconst runId = body.run_id;\n\nif (typeof runId !== 'string' || !/^run_[0-9]{14}_[a-f0-9]{8}$/.test(runId)) {\n  throw new Error('INVALID_INTAKE: run_id missing or malformed: ' + JSON.stringify(runId));\n}\n\nreturn [{ json: { run_id: runId, accepted_at: new Date().toISOString() } }];"
+      },
+      "id": "bf-node-002",
+      "name": "02 Validate Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ accepted: true, run_id: $json.run_id }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "bf-node-003",
+      "name": "03 Respond 202",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Single source of truth for the rest of the run. Downstream nodes read\n// these values via $('Init Run Context') rather than re-deriving them.\nconst runId = $input.first().json.run_id;\n\nreturn [{\n  json: {\n    run_id: runId,\n    api_base: 'http://localhost:3001',\n    // Must match INTERNAL_TOKEN in the api service's .env\n    internal_token: 'dev-internal-token-change-me',\n    started_at: new Date().toISOString(),\n  },\n}];"
+      },
+      "id": "bf-node-004",
+      "name": "Init Run Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -20,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/brand-cache",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-005",
+      "name": "04 Brand Cache Lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        180,
+        300
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cache-miss",
+              "leftValue": "={{ $json.cache_hit }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bf-node-006",
+      "name": "05 Crawl Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/crawl",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-007",
+      "name": "06 Playwright Crawl",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        640,
+        200
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/brand-kit",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-008",
+      "name": "08 Brand Intelligence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        900,
+        300
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/product-identity",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-009",
+      "name": "09 Product Intelligence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1140,
+        300
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/plan",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-010",
+      "name": "11 Campaign Planner",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1380,
+        300
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// One item per shot. The HTTP node below then issues them with bounded\n// concurrency via its batching options.\nconst runId = $('Init Run Context').first().json.run_id;\nconst shots = $input.first().json.shots ?? [];\n\nif (!Array.isArray(shots) || shots.length !== 6) {\n  throw new Error('CAMPAIGN_PLANNING_FAILED: expected 6 shot contracts, got ' + (shots?.length ?? 0));\n}\n\nreturn shots.map((s) => ({ json: { run_id: runId, shot_id: s.shot_id, purpose: s.purpose } }));"
+      },
+      "id": "bf-node-011",
+      "name": "13 Split Six Shots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/shot",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $json.run_id, shot_id: $json.shot_id }) }}",
+        "options": {
+          "timeout": 900000,
+          "batching": {
+            "batch": {
+              "batchSize": 3,
+              "batchInterval": 1000
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-012",
+      "name": "14 Generate + QA Shot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1860,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Summarise the six outcomes. The api has already persisted each shot's\n// result; this is the orchestrator's own view for logging and routing.\nconst runId = $('Init Run Context').first().json.run_id;\nconst items = $input.all().map((i) => i.json ?? {});\n\nconst results = items.map((r) => ({\n  shot_id: r.shot_id ?? null,\n  status: r.status ?? 'FAILED',\n  ok: r.success === true,\n  repair_attempts: r.repair_attempts ?? 0,\n  product_accuracy: r.product_accuracy ?? null,\n  error: r.error ?? null,\n}));\n\nconst accepted = results.filter((r) => r.status === 'ACCEPTED').length;\n\nreturn [{\n  json: {\n    run_id: runId,\n    shot_count: results.length,\n    accepted,\n    blocked: results.length - accepted,\n    results,\n  },\n}];"
+      },
+      "id": "bf-node-013",
+      "name": "19 Aggregate Campaign",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3001/internal/finalize",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={{ JSON.stringify({ \"x-internal-token\": $('Init Run Context').first().json.internal_token }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ run_id: $('Init Run Context').first().json.run_id }) }}",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "bf-node-014",
+      "name": "20 Finalize + Manifest",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2340,
+        300
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "id": "bf-node-015",
+      "name": "21 Run Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2580,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Bounded failure: no retry loop here. The api already recorded the run as\n// FAILED with a failure_code; retrying a stage that spent model calls would\n// double-bill it.\nconst runId = $('Init Run Context').first().json.run_id;\nconst err = $input.first().json ?? {};\n\nconst detail = err.error?.message ?? err.error ?? err.message ?? 'unknown stage failure';\nconst code = err.code ?? err.error?.code ?? 'SYSTEM_ERROR';\n\nthrow new Error('BrandForge run ' + runId + ' halted [' + code + ']: ' + detail);"
+      },
+      "id": "bf-node-016",
+      "name": "Halt: Stage Failed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        600
+      ]
+    }
+  ],
+  "connections": {
+    "01 Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "02 Validate Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "02 Validate Intake": {
+      "main": [
+        [
+          {
+            "node": "03 Respond 202",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "03 Respond 202": {
+      "main": [
+        [
+          {
+            "node": "Init Run Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Run Context": {
+      "main": [
+        [
+          {
+            "node": "04 Brand Cache Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "04 Brand Cache Lookup": {
+      "main": [
+        [
+          {
+            "node": "05 Crawl Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "05 Crawl Needed?": {
+      "main": [
+        [
+          {
+            "node": "06 Playwright Crawl",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "08 Brand Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "06 Playwright Crawl": {
+      "main": [
+        [
+          {
+            "node": "08 Brand Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "08 Brand Intelligence": {
+      "main": [
+        [
+          {
+            "node": "09 Product Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "09 Product Intelligence": {
+      "main": [
+        [
+          {
+            "node": "11 Campaign Planner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "11 Campaign Planner": {
+      "main": [
+        [
+          {
+            "node": "13 Split Six Shots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "13 Split Six Shots": {
+      "main": [
+        [
+          {
+            "node": "14 Generate + QA Shot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "14 Generate + QA Shot": {
+      "main": [
+        [
+          {
+            "node": "19 Aggregate Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "19 Aggregate Campaign": {
+      "main": [
+        [
+          {
+            "node": "20 Finalize + Manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "20 Finalize + Manifest": {
+      "main": [
+        [
+          {
+            "node": "21 Run Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Halt: Stage Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "brandforge-local"
+  },
+  "tags": []
+}

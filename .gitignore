@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+.npm/
+
+# secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# run data: uploads, crawled brand imagery, generated output, fixtures
+data/
+
+# build output
+dist/
+web/dist/
+
+# verification artefacts
+ui-shots/
+.codecheck_*.js
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# logs
+*.log
+npm-debug.log*
