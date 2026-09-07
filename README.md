@@ -156,8 +156,8 @@ Everything lives in `.env`; nothing is hardcoded.
 
 | Variable | Default | Effect |
 |---|---|---|
-| `GEMINI_MODEL` | `gemini-2.5-flash` | Brand, product, planning and QA reasoning |
-| `OPENAI_IMAGE_MODEL` | `gpt-image-1` | Image generation |
+| `GEMINI_MODEL` | `gemini-3.8-flash` | Brand, product, planning and QA reasoning |
+| `OPENAI_IMAGE_MODEL` | `gpt-image-2.0` | Image generation |
 | `MAX_CRAWL_PAGES` | `12` | Hard ceiling on pages visited |
 | `MAX_REFERENCE_IMAGES` | `24` | Ceiling on kept reference images |
 | `GENERATION_CONCURRENCY` | `3` | Parallel image generations |
