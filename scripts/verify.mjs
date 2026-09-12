@@ -58,7 +58,8 @@ async function probe(name, req, expect) {
 
 run('palette contrast (WCAG AA)', 'node', ['scripts/check-contrast.mjs']);
 run('unit tests', 'node', ['--test', 'tests/crawler-filters.test.js', 'tests/input-validation.test.js',
-  'tests/model-json.test.js', 'tests/prompt-builder.test.js', 'tests/qa-override.test.js', 'tests/ssrf.test.js']);
+  'tests/model-json.test.js', 'tests/prompt-builder.test.js', 'tests/qa-override.test.js', 'tests/ssrf.test.js',
+  'tests/crawler-tools.test.js']);
 run('production build', npm, ['run', 'build', '-w', 'web']);
 run('n8n workflow build', 'node', ['scripts/build-n8n-workflow.mjs']);
 run('n8n workflow integrity', 'node', ['scripts/check-workflow.mjs']);
@@ -91,7 +92,16 @@ if (!apiUp || !crawlerUp || !webUp) {
     }, 400);
     ssrfOk = ssrfOk && good;
   }
-  console.log(`  ${blocked.length} vectors checked`);
+  // the agent-facing tools reach the network too, so they get the same guard
+  for (const url of ['http://127.0.0.1:3001/api/health', 'http://169.254.169.254/', 'file:///etc/passwd']) {
+    const good = await probe(`fetch-page blocks ${url}`, {
+      url: `${CRAWLER}/tools/fetch-page`, method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url }),
+    }, 400);
+    ssrfOk = ssrfOk && good;
+  }
+  console.log(`  ${blocked.length + 3} vectors checked`);
   results.push({ name: 'SSRF blocklist', ok: ssrfOk });
 
   process.stdout.write('\n─ API security and error paths\n');

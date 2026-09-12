@@ -103,6 +103,45 @@ Everything is source-attributed, and the crawler validates its own output agains
 `EvidenceBundleSchema` before returning it. A service that violates its own contract fails loudly
 rather than passing malformed evidence downstream.
 
+### 2b. Retrieval as a tool surface (the grounding layer)
+
+The original design ran the crawler once, as stage 06, and handed a fixed bundle downstream. That
+is being inverted: the crawler becomes **the model's search engine**, a set of tools it calls in a
+loop whenever it decides it does not know enough. Grounding comes from our own retrieval rather
+than from model recall or a paid search API.
+
+**Why not general web search.** It was tested, not assumed. Every free engine blocks an automated
+client: `html.duckduckgo.com` returns 403, Mojeek serves a CAPTCHA, Startpage and Searx return no
+parseable results, all from a real browser with a normal user agent. An architecture resting on
+free search would rest on sand. A keyed free-tier engine can be added later as an adapter; nothing
+depends on one.
+
+What replaces it is better suited to the question anyway, because the product reasons about one
+brand's own output rather than the open web:
+
+| Tool | Source | Answers |
+|---|---|---|
+| `lookup-brand` | Wikipedia + Wikidata | Is this brand established? Official site, industry, founding |
+| `site-map` | `sitemap.xml`, `robots.txt` | The brand's own page inventory, classified by role |
+| `fetch-page` | Direct fetch | One page: headings, copy, JSON-LD, og:image, social handles |
+| `timeline` | Wayback CDX | How the brand presented itself across years |
+
+All four are free and keyless, and all four go through the same SSRF guard as the crawl.
+
+**Known versus unknown brands.** `lookup-brand` decides this from data rather than from the
+model's sense of familiarity, which is where confident hallucination starts. An established brand
+has a Wikipedia article and a Wikidata entity; an unknown one has neither.
+
+The rule that follows is the important part: **recall is a search prior, never evidence.** If the
+model believes a brand shoots on-model, that belief may direct the agent to the right pages, but
+the claim only enters the Brand Kit once a fetched page supports it. This keeps the speed benefit
+for known brands without inheriting a year-stale training snapshot.
+
+**Social platforms.** Handles are read from the brand's own footer; feeds are not scraped.
+Instagram, TikTok and X are auth-walled and prohibit automated collection, so a scraper aimed at
+them would be unreliable as well as out of bounds. The handles alone still say which platforms a
+brand invests in, which is a signal about how it posts.
+
 ### 3. Brand intelligence — observation separated from inference
 
 The evidence is *compacted* before it reaches the model: deduplicated titles, headings, copy,
