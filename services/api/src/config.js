@@ -16,8 +16,8 @@ export const config = {
 
   gemini: {
     apiKey: str('GEMINI_API_KEY'),
-    model: str('GEMINI_MODEL', 'gemini-2.5-flash'),
-    visionModel: str('GEMINI_VISION_MODEL', str('GEMINI_MODEL', 'gemini-2.5-flash')),
+    model: str('GEMINI_MODEL', 'gemini-3.8-flash'),
+    visionModel: str('GEMINI_VISION_MODEL', str('GEMINI_MODEL', 'gemini-3.8-flash')),
   },
   openai: {
     apiKey: str('OPENAI_API_KEY'),
