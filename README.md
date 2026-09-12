@@ -151,6 +151,33 @@ sampled; and every brand conclusion tagged `observed` (backed by specific eviden
 
 ---
 
+## The retrieval layer
+
+The crawler is not only a pipeline stage. It also exposes the tools the brand
+intelligence uses as its grounding, so the model asks our retrieval instead of
+reaching for training-data recall or a paid search API.
+
+| Endpoint | Source | Answers |
+|---|---|---|
+| `POST /tools/lookup-brand` | Wikipedia + Wikidata | Is this brand established? Official site, industry, founding date |
+| `POST /tools/site-map` | `sitemap.xml`, `robots.txt` | The brand's own page inventory, classified by role |
+| `POST /tools/fetch-page` | Direct fetch | One page: headings, copy, JSON-LD, `og:image`, social handles |
+| `POST /tools/timeline` | Wayback CDX | How the brand presented itself across years |
+
+All four are free, need no API key, and go through the same SSRF guard as the
+crawl. Try them with the services running:
+
+```bash
+curl -s -X POST http://localhost:3002/tools/lookup-brand   -H 'content-type: application/json' -d '{"name":"Allbirds"}'
+```
+
+`timeline` is what answers "how did they used to post, and how do they post
+now". Fetching an Allbirds snapshot from 2018 returns the title *The world's
+most comfortable shoes*; the live site says *Comfortable, Sustainable Shoes &
+Apparel*. The positioning shift is visible without a paid data source.
+
+---
+
 ## Configuration
 
 Everything lives in `.env`; nothing is hardcoded.
