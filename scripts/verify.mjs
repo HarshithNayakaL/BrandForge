@@ -61,6 +61,7 @@ run('unit tests', 'node', ['--test', 'tests/crawler-filters.test.js', 'tests/inp
   'tests/model-json.test.js', 'tests/prompt-builder.test.js', 'tests/qa-override.test.js', 'tests/ssrf.test.js',
   'tests/crawler-tools.test.js']);
 run('production build', npm, ['run', 'build', '-w', 'web']);
+run('config matches its documentation', 'node', ['scripts/check-config-docs.mjs']);
 run('n8n workflow build', 'node', ['scripts/build-n8n-workflow.mjs']);
 run('n8n workflow integrity', 'node', ['scripts/check-workflow.mjs']);
 

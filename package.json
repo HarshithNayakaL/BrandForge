@@ -24,6 +24,7 @@
     "check:ui": "node scripts/ui-check.mjs",
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:workflow": "node scripts/check-workflow.mjs",
+    "check:config": "node scripts/check-config-docs.mjs",
     "fixtures": "node scripts/seed-fixtures.mjs",
     "fixtures:clean": "node scripts/seed-fixtures.mjs --clean"
   },
