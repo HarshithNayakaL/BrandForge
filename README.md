@@ -94,20 +94,21 @@ npm run fixtures:clean
 npm run verify
 ```
 
-One command, no keys, no external network. Eight groups:
+One command, no keys, no external network. Nine groups:
 
 | Group | What it proves |
 |---|---|
 | Palette contrast | 20 text/background pairs at WCAG AA, including the dark app bar |
-| Unit tests | 52 tests over the deterministic parts |
+| Unit tests | 61 tests over the deterministic parts |
 | Production build | the frontend actually builds |
+| Config matches its docs | README, `config.js` and `.env.example` agree on every default |
 | n8n workflow build | the importable JSON regenerates |
 | n8n workflow integrity | connections resolve, every node reachable, Code nodes parse, every money-spending HTTP node has an error path |
-| SSRF blocklist | 16 vectors rejected |
+| SSRF blocklist | 19 vectors rejected, across the crawl and the tool endpoints |
 | API security and error paths | traversal, auth, malformed ids, upload validation |
 | UI sweep | 3 viewports: console errors, failed requests, horizontal overflow, text overflow, broken images, target sizes, accessible names, keyboard focus |
 
-Individual pieces: `npm run check:ui`, `check:contrast`, `check:workflow`, `npm test`.
+Individual pieces: `npm run check:ui`, `check:contrast`, `check:workflow`, `check:config`, `npm test`.
 
 ---
 
