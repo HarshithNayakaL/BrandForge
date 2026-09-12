@@ -29,6 +29,9 @@ Two more, learned from the first attempt:
 
 - **Not a magazine.** The first version used a display serif for UI labels, fluid clamp headings and a cream body. That is brand-register grammar applied to a tool, and it read as empty rather than considered.
 - **Not a terminal.** The obvious over-correction from cream is neon-on-black developer chic. Also wrong: this is a visual-review surface, not a console.
+- **Not generic "fun".** Y2K gradients, bubble type, glowing orbs and confetti are what a model
+  reaches for when asked to be playful, and they are the exact look that reads as AI-generated.
+  The colour here comes from press and darkroom practice, which no other product could use.
 - **Not a dashboard-shaped SaaS clone.** Dark sidebar, rounded card grid, indigo everywhere is the next reflex after those two. The identity here comes from photographic production language (crop marks, frame numbers, contact-sheet rhythm), which is true to the subject rather than borrowed from the category.
 
 ## Strategic design principles

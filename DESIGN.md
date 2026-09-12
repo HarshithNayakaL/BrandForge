@@ -2,47 +2,60 @@
 
 ## Theme
 
-A dark app shell above a near-white working canvas.
+**Press proof.** Lilac paper, hot magenta, lime, cyan and yellow, on a deep aubergine shell.
 
-The chrome is dark so the product has an identity the moment it loads; the canvas stays at effectively zero chroma so nothing biases how the user perceives colour in the photography they are judging. The single hue in the system (indigo, 270°) appears in actions, live state and the mark; the neutrals carry a trace of it (chroma 0.002–0.016) so greys read as intentional rather than default.
+The brief was colourful, playful, not corporate. The lazy route there is Y2K gradients and bubble
+type, which is exactly the AI-generated look Gen Z audiences report detecting and distrusting, and
+which the anti-slop list bans. So the colour is taken from the subject instead: this product is
+photo and print production, and a press proof is already loud. Registration crosshairs, a colour
+control bar, grease-pencil rings on selects, stickers. Nothing here is a generic "fun" motif.
 
-Explicitly not cream, sand, paper or parchment. Explicitly not dark terminal chic, and not a dark-sidebar SaaS clone: the dark band is a slim top bar, and the identity is carried by the production language below it.
+**The one guardrail:** everything is loud except *inside* the frames, which keep a neutral mat
+(`--mat`). A saturated surround changes how a viewer perceives colour in the photograph, and
+judging photographic colour is this screen's entire job. Real contact sheets do the same thing:
+loud sheet, neutral border around each frame.
 
-## Signature: production language
+## Signature: production marks
 
-The subject of this product is photography and verification, so the interface borrows from how photographic work is actually marked up, not from dashboard convention.
-
-- **Crop marks.** Thin corner brackets sitting *outside* the hero frame, the way a contact sheet or print proof is marked. One device, used once per screen, never decoratively.
-- **Frame numbers.** `SHOT_01`–`SHOT_06` in mono, on every frame and slot, the way a contact sheet is indexed.
-- **Contact-sheet rhythm.** The gallery is a hero frame spanning two rows plus five supporting frames, not six identical cards. Frames use a 3px radius so they read as photographs, not as UI cards.
-- **The mark** is an aperture inside a frame with its corners cut away, echoing the crop marks at 22px.
+- **Registration crosshairs** in cyan and magenta, outside the hero frame, on opposing corners.
+- **The control bar** in the run header uses the shape of a press colour bar but carries the
+  brand's *actual detected palette*, so it is data rather than ornament. It replaced a duplicate
+  swatch row, not added to it.
+- **A grease-pencil ring** around the frame number of the select, drawn on with a stroke animation.
+  Around the *number*, never across the picture: an editor circles the frame number on a contact
+  sheet, and the photograph has to stay readable.
+- **Stickers** for status, rotated 2.5 degrees with a hard offset shadow, as if applied by hand.
+- **Hard offset shadows** (`3px 3px 0`, no blur) on every raised surface, so depth reads as printed
+  layers rather than soft elevation.
+- **Frame numbers** `SHOT_01`–`SHOT_06` in mono, the way a contact sheet is indexed.
 
 ## Color
 
-All values OKLCH. Contrast verified by `scripts/check-contrast.mjs` (20/20 pass, AA), including every pair used on the dark shell.
+All values OKLCH. Contrast verified by `scripts/check-contrast.mjs` (23/23 pass, AA).
 
-| Token | OKLCH | Hex | Role |
-|---|---|---|---|
-| `--bg` | `0.985 0.002 270` | `#f9fafb` | App background |
-| `--surface` | `1 0 0` | `#ffffff` | Raised panels, inputs, gallery cards |
-| `--sunken` | `0.966 0.004 270` | `#f3f4f6` | Wells, image mattes, toolbars |
-| `--line` | `0.905 0.006 270` | `#dedfe4` | Decorative separators (1px) |
-| `--line-strong` | `0.640 0.014 270` | `#898c95` | Interactive boundaries, 3.22:1 |
-| `--ink` | `0.235 0.014 270` | `#1b1e25` | Primary text, 15.98:1 |
-| `--ink-2` | `0.452 0.012 270` | `#53565d` | Secondary text, 7.07:1 |
-| `--ink-3` | `0.535 0.011 270` | `#6b6d74` | Labels and meta, 4.95:1 |
-| `--accent` | `0.480 0.160 270` | `#3c52b6` | Primary action, current state, 6.52:1 |
-| `--accent-weak` | `0.955 0.020 270` | `#ebf0fe` | Chip and active-row fills |
-| `--ok` | `0.500 0.110 155` | `#1e7546` | Accepted |
-| `--warn` | `0.520 0.110 70` | `#915c08` | Partial |
-| `--danger` | `0.520 0.170 25` | `#b63132` | Blocked, failed |
-| `--shell` | `0.205 0.016 270` | | App bar ground |
-| `--shell-2` | `0.285 0.016 270` | | App bar hover and active |
-| `--on-shell` | `0.970 0.003 270` | | App bar text, 16.43:1 |
-| `--on-shell-2` | `0.740 0.014 270` | | App bar muted text, 7.77:1 |
-| `--accent-lift` | `0.720 0.150 270` | | The mark and focus rings on dark, 7.03:1 |
+| Token | Hex | Role |
+|---|---|---|
+| `--bg` | `#f8f2ff` | Lilac paper. Not white, not cream |
+| `--surface` | `#fefcff` | Raised panels |
+| `--mat` | `#f4f3f5` | **Inside image frames only.** Neutral, so photo colour stays judgeable |
+| `--ink` | `#1a1223` | Aubergine. Text, and every 2px border |
+| `--magenta` | `#d3008b` | Primary action, active tab, active stage, select ring |
+| `--lime` | `#68d54e` | Accepted, the mark, active nav |
+| `--cyan` | `#008ec8` | Registration marks, evidence rules |
+| `--yellow` | `#f4ce23` | Direction band, lightbox header, highlight |
+| `--red` | `#d81327` | Blocked |
 
-Strategy: **Restrained.** Accent covers well under 10% of any screen. Semantic colours appear only on status, never as decoration.
+Strategy: **full palette.** Four named colours, each with one job. Colour is never decorative on a
+status: every state also carries a text label, so nothing is conveyed by colour alone.
+
+## Typography
+
+Three faces, at the cap. **Bricolage Grotesque** for display (deliberately irregular, variable
+optical sizing, and specifically not the Helvetica/Inter uniformity that reads as corporate),
+**Inter** for interface text, **IBM Plex Mono** for frame numbers, run ids and scores.
+
+Display roles are fluid via `clamp()`; body and data stay on a fixed scale, because dense tables
+read worse when type scales with the viewport.
 
 ## Typography
 

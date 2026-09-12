@@ -40,7 +40,7 @@ export default function Intake({ onSubmit, error, keysReady }) {
   return (
     <div className="intake">
       <form onSubmit={submit}>
-        <h1>Six campaign shots, in someone else&rsquo;s brand language</h1>
+        <h1>Six campaign shots, in someone else&rsquo;s <em>brand language</em></h1>
         <p className="intake-lede">
           Point it at a brand&rsquo;s website and give it one photo of your product. It reads how
           that brand shoots, works out what cannot change about your product, then makes the

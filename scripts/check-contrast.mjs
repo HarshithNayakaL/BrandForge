@@ -45,27 +45,39 @@ const toHex = (c) => {
 
 // --- palette (hue 270, the seeded indigo; neutrals carry only a trace of it)
 const P = {
-  bg:            [0.985, 0.002, 270],
-  surface:       [1.000, 0.000, 270],
-  sunken:        [0.966, 0.004, 270],
-  line:          [0.905, 0.006, 270],
-  'line-strong': [0.640, 0.014, 270],
-  ink:           [0.235, 0.014, 270],
-  'ink-2':       [0.452, 0.012, 270],
-  'ink-3':       [0.535, 0.011, 270],
-  accent:        [0.480, 0.160, 270],
-  'accent-weak': [0.955, 0.020, 270],
-  ok:            [0.500, 0.110, 155],
-  warn:          [0.520, 0.110, 70],
-  danger:        [0.520, 0.170, 25],
+  // Canvas: tinted, not neutral. Gen Z design rejects the white/grey default,
+  // but frames keep a neutral mat so photo colour stays judgeable.
+  paper:         [0.970, 0.020, 305],
+  surface:       [0.995, 0.006, 305],
+  mat:           [0.965, 0.003, 305],   // inside image frames only
+  ink:           [0.200, 0.035, 305],
+  'ink-2':       [0.430, 0.035, 305],
+  'ink-3':       [0.520, 0.030, 305],
+  line:          [0.880, 0.020, 305],
+  'line-strong': [0.580, 0.035, 305],
 
-  // app shell (dark chrome above the light working canvas)
-  shell:         [0.205, 0.016, 270],
-  'shell-2':     [0.285, 0.016, 270],
-  'on-shell':    [0.970, 0.003, 270],
-  'on-shell-2':  [0.740, 0.014, 270],
-  'accent-lift': [0.720, 0.150, 270],
+  // Print registration colours, used as real signal not decoration
+  cyan:          [0.600, 0.150, 230],   // registration marks, never text
+  'cyan-ink':    [0.520, 0.130, 230],   // when cyan has to carry text
+  magenta:       [0.570, 0.240, 350],
+  'magenta-ink': [0.490, 0.210, 350],   // chip text on a magenta tint
+  'magenta-lt':  [0.940, 0.050, 350],
+  yellow:        [0.860, 0.170, 95],
+  lime:          [0.780, 0.200, 140],
+  'lime-ink':    [0.480, 0.140, 145],
+  'lime-lt':     [0.950, 0.060, 140],
+  'red':         [0.560, 0.220, 25],
+  'red-ink':     [0.500, 0.200, 27],
+  'red-lt':      [0.945, 0.050, 25],
+  'amber-ink':   [0.530, 0.150, 70],
+  'amber-lt':    [0.950, 0.080, 80],
+
+  shell:         [0.200, 0.035, 305],
+  'shell-2':     [0.290, 0.040, 305],
+  'on-shell':    [0.970, 0.010, 305],
+  'on-shell-2':  [0.760, 0.030, 305],
 };
+
 
 console.log('\n  token          oklch                       hex');
 console.log('  ' + '-'.repeat(58));
@@ -74,27 +86,31 @@ for (const [k, v] of Object.entries(P)) {
 }
 
 const pairs = [
-  ['ink on bg', P.ink, P.bg, 4.5],
+  ['ink on paper', P.ink, P.paper, 4.5],
   ['ink on surface', P.ink, P.surface, 4.5],
-  ['ink-2 on bg', P['ink-2'], P.bg, 4.5],
-  ['ink-2 on surface', P['ink-2'], P.surface, 4.5],
-  ['ink-3 on bg (labels)', P['ink-3'], P.bg, 4.5],
-  ['ink-3 on sunken', P['ink-3'], P.sunken, 4.5],
-  ['accent on bg', P.accent, P.bg, 4.5],
-  ['accent on surface', P.accent, P.surface, 4.5],
-  ['white on accent (button)', [1, 0, 270], P.accent, 4.5],
-  ['accent on accent-weak (chip)', P.accent, P['accent-weak'], 4.5],
-  ['ok on surface', P.ok, P.surface, 4.5],
-  ['warn on surface', P.warn, P.surface, 4.5],
-  ['danger on surface', P.danger, P.surface, 4.5],
+  ['ink on mat', P.ink, P.mat, 4.5],
+  ['ink-2 on paper (body)', P['ink-2'], P.paper, 4.5],
+  ['ink-3 on paper (labels)', P['ink-3'], P.paper, 4.5],
+  ['ink-3 on surface', P['ink-3'], P.surface, 4.5],
+  ['white on magenta', [1, 0, 0], P.magenta, 4.5],
+  ['magenta on paper (link/active)', P.magenta, P.paper, 4.5],
+  ['magenta-ink on magenta-lt (chip)', P['magenta-ink'], P['magenta-lt'], 4.5],
+  ['cyan-ink on paper (text)', P['cyan-ink'], P.paper, 4.5],
+  ['cyan mark on paper (non-text 3:1)', P.cyan, P.paper, 3.0],
+  ['ink on lime (accept btn)', P.ink, P.lime, 4.5],
+  ['lime-ink on lime-lt (accepted chip)', P['lime-ink'], P['lime-lt'], 4.5],
+  ['red-ink on red-lt (blocked chip)', P['red-ink'], P['red-lt'], 4.5],
+  ['red on paper', P.red, P.paper, 4.5],
+  ['amber-ink on amber-lt (partial chip)', P['amber-ink'], P['amber-lt'], 4.5],
+  ['ink on yellow (highlight)', P.ink, P.yellow, 4.5],
   ['on-shell on shell', P['on-shell'], P.shell, 4.5],
-  ['on-shell-2 on shell (muted nav)', P['on-shell-2'], P.shell, 4.5],
-  ['on-shell-2 on shell-2 (nav hover)', P['on-shell-2'], P['shell-2'], 4.5],
-  ['on-shell on shell-2', P['on-shell'], P['shell-2'], 4.5],
-  ['accent-lift on shell (active nav)', P['accent-lift'], P.shell, 4.5],
-  ['line-strong on bg (UI boundary 3:1)', P['line-strong'], P.bg, 3.0],
-  ['line on bg (decorative separator)', P.line, P.bg, 1.15],
+  ['on-shell-2 on shell', P['on-shell-2'], P.shell, 4.5],
+  ['on-shell-2 on shell-2', P['on-shell-2'], P['shell-2'], 4.5],
+  ['lime on shell (mark)', P.lime, P.shell, 4.5],
+  ['line-strong on paper (UI boundary 3:1)', P['line-strong'], P.paper, 3.0],
+  ['line on paper (separator)', P.line, P.paper, 1.15],
 ];
+
 
 console.log('\n  pair                            ratio   need   result');
 console.log('  ' + '-'.repeat(58));

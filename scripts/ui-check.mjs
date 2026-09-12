@@ -74,6 +74,10 @@ for (const vp of WIDTHS) {
         const cs = getComputedStyle(el);
         if (cs.overflow === 'hidden' && cs.textOverflow === 'ellipsis') continue;
         if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') continue;
+        // visually-hidden text is meant to exceed its 1px box; clip-path hides it
+        const box = el.getBoundingClientRect();
+        if (box.width <= 1 || box.height <= 1) continue;
+        if (cs.clipPath && cs.clipPath !== 'none') continue;
         if (el.scrollWidth - el.clientWidth > 2 && el.clientWidth > 0) {
           bad.push(`${el.tagName.toLowerCase()}.${el.className || '-'} overflows by ${el.scrollWidth - el.clientWidth}px: "${el.textContent.trim().slice(0, 40)}"`);
         }

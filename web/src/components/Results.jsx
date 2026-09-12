@@ -34,7 +34,15 @@ function Tile({ shot, base, onOpen, hero, index }) {
 
       <div className="tile-cap">
         <div className="row">
-          <span className="mono">{shot.shot_id}</span>
+          <span className={`frame-no${hero && accepted ? ' selected' : ''}`}>
+            <span className="mono">{shot.shot_id}</span>
+            {hero && accepted && (
+              /* the ring a picture editor draws round the frame number of a select */
+              <svg className="select-ring" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true">
+                <ellipse cx="60" cy="22" rx="56" ry="19" transform="rotate(-1.5 60 22)" />
+              </svg>
+            )}
+          </span>
           <span className="mono">{qa ? `${qa.product_accuracy}/10 accuracy` : 'not scored'}</span>
         </div>
         <p className="purpose">{shot.purpose}</p>
@@ -153,9 +161,24 @@ export default function Results({ campaign, onNew }) {
             <span className="mono">{new URL(manifest.brand_url).hostname}</span>
             <span className="chip chip-neutral">{manifest.product_category}</span>
             <span className="mono">{manifest.run_id}</span>
+            {(kit?.visual_identity?.dominant_colors ?? []).length > 0 && (
+              <span
+                className="colorbar"
+                title={`Detected palette: ${(kit.visual_identity.dominant_colors ?? []).slice(0, 5).join(', ')}`}
+              >
+                {kit.visual_identity.dominant_colors.slice(0, 5).map((c, i) => (
+                  <i key={i} style={{ background: /^#|^rgb|^oklch/.test(c) ? c : 'var(--mat)' }} />
+                ))}
+                <span className="sr-only">
+                  Detected palette: {kit.visual_identity.dominant_colors.slice(0, 5).join(', ')}
+                </span>
+              </span>
+            )}
           </div>
         </div>
-        <span className={`chip ${statusChip}`}>{manifest.status}</span>
+        <span className={`chip sticker ${statusChip}`}>
+          {manifest.accepted} of 6 accepted
+        </span>
       </div>
 
       <div className="tabs" role="tablist">
@@ -209,11 +232,6 @@ export default function Results({ campaign, onNew }) {
             {[claim(photo?.lighting?.[0]), claim(photo?.backgrounds?.[0]), claim(photo?.camera_style?.[0])]
               .filter(Boolean).join(' · ') || 'not determined'}
           </p>
-          <div className="swatches">
-            {(kit?.visual_identity?.dominant_colors ?? []).slice(0, 6).map((c, i) => (
-              <i key={i} style={{ background: /^#|^rgb|^oklch/.test(c) ? c : 'var(--sunken)' }} title={c} />
-            ))}
-          </div>
         </div>
 
         <div className="gallery">
