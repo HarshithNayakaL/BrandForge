@@ -98,7 +98,7 @@ One command, no keys, no external network. Nine groups:
 
 | Group | What it proves |
 |---|---|
-| Palette contrast | 20 text/background pairs at WCAG AA, including the dark app bar |
+| Palette contrast | 12 text/background pairs at WCAG AA across the print palette |
 | Unit tests | 61 tests over the deterministic parts |
 | Production build | the frontend actually builds |
 | Config matches its docs | README, `config.js` and `.env.example` agree on every default |

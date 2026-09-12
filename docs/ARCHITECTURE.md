@@ -27,25 +27,29 @@ Everything below follows from those two.
 Four local processes, each with one job.
 
 ```
-┌──────────┐   /api    ┌──────────────────────────────┐   /crawl   ┌───────────┐
-│   web    │──────────▶│            api               │───────────▶│  crawler  │
-│  :5173   │           │            :3001             │            │   :3002   │
-│  React   │◀──────────│  run state · keys · stages   │◀───────────│ Playwright│
-└──────────┘  polling  └──────────────────────────────┘  evidence  └───────────┘
-                             ▲              │
-                    webhook  │              │  Gemini · OpenAI
-                             │              ▼
-                       ┌───────────┐   (model APIs)
-                       │    n8n    │
-                       │   :5678   │
+┌──────────┐   /api    ┌──────────────────────────────┐  /crawl    ┌────────────────┐
+│   web    │──────────▶│            api               │───────────▶│    crawler     │
+│  :5173   │           │            :3001             │  /tools/*  │     :3002      │
+│  React   │◀──────────│  run state · keys · stages   │◀───────────│   Playwright   │
+└──────────┘  polling  └──────────────────────────────┘  evidence  │  + retrieval   │
+                             ▲              │                      └────────────────┘
+                    webhook  │              │  Gemini · OpenAI              │
+                             │              ▼                               ▼
+                       ┌───────────┐   (model APIs)              Wikipedia · Wikidata
+                       │    n8n    │                             Wayback · sitemaps
+                       │   :5678   │                             the brand's own site
                        └───────────┘
 ```
+
+The crawler has two faces. `/crawl` is the bounded sweep that produces an evidence bundle;
+`/tools/*` is the retrieval surface the brand intelligence drives itself. Both enforce the same
+SSRF guard, and neither needs an API key.
 
 | Service | Owns | Deliberately does not |
 |---|---|---|
 | `web` | Intake, live progress, gallery | Hold any credential, or contain pipeline logic |
 | `api` | Run state, stage implementations, both API keys, artefact serving | Decide *when* stages run, under n8n orchestration |
-| `crawler` | Deterministic web evidence, SSRF enforcement | Reason about what it collected |
+| `crawler` | Deterministic web evidence, the retrieval tools, SSRF enforcement | Reason about what it collected |
 | `n8n` | Routing, sequencing, fan-out, error branches | Any AI reasoning, or any deterministic work a Code node can do |
 
 ### Why the API owns the model calls rather than n8n HTTP nodes
