@@ -32,8 +32,8 @@
   /* type ------------------------------------------------------------ */
   --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
-  --t-hero: 2.625rem;   /* 42 */
-  --t-display: 2rem;    /* 32 */
+  --t-hero: clamp(1.875rem, 1.1rem + 3.4vw, 2.625rem);   /* 30 → 42 */
+  --t-display: clamp(1.5rem, 1.05rem + 2vw, 2rem);       /* 24 → 32 */
   --t-h2: 1.1875rem;    /* 19 */
   --t-h3: 0.9375rem;    /* 15 */
   --t-body: 0.875rem;   /* 14 */
@@ -85,7 +85,7 @@ ul, ol { padding: 0; list-style: none; }
 
 /* ===================================================================== shell */
 
-.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app { min-height: 100dvh; display: flex; flex-direction: column; }
 
 .topbar {
   position: sticky;
@@ -95,7 +95,7 @@ ul, ol { padding: 0; list-style: none; }
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 24px;
+  padding: 0 max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
   background: var(--shell);
   color: var(--on-shell);
 }
@@ -116,7 +116,7 @@ ul, ol { padding: 0; list-style: none; }
   cursor: pointer;
 }
 .brand svg { display: block; color: var(--accent-lift); flex: none; }
-.brand .wordmark { display: inline-flex; }
+.brand .wordmark { display: inline-flex; white-space: nowrap; }
 .brand b { font-weight: 600; }
 .brand .wordmark span { font-weight: 400; color: var(--on-shell-2); }
 
@@ -126,7 +126,7 @@ ul, ol { padding: 0; list-style: none; }
   background: none;
   border: 0;
   font: inherit;
-  font-size: var(--t-sm);
+  font-size: 0.8125rem;
   color: var(--on-shell-2);
   padding: 8px 13px;
   border-radius: var(--r-control);
@@ -153,7 +153,11 @@ ul, ol { padding: 0; list-style: none; }
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 40px 24px 100px;
+  padding:
+    40px
+    max(24px, env(safe-area-inset-right))
+    calc(100px + env(safe-area-inset-bottom))
+    max(24px, env(safe-area-inset-left));
 }
 
 /* ================================================================ primitives */
@@ -260,7 +264,7 @@ ul, ol { padding: 0; list-style: none; }
   gap: 72px;
   align-items: center;
   align-content: center;
-  min-height: calc(100vh - 220px);
+  min-height: calc(100dvh - 220px);
   padding-top: 12px;
 }
 
@@ -293,7 +297,8 @@ ul, ol { padding: 0; list-style: none; }
   border: 1px solid var(--line-strong);
   border-radius: var(--r-control);
   font: inherit;
-  font-size: 0.9375rem;
+  /* 16px floor: anything smaller makes iOS zoom the page on focus */
+  font-size: 1rem;
   color: var(--ink);
   transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
@@ -322,6 +327,8 @@ ul, ol { padding: 0; list-style: none; }
 }
 .dropzone:hover, .dropzone.over { border-color: var(--accent); background: var(--accent-weak); }
 .dropzone.filled { border-style: solid; }
+.dropzone .preview-wrap { position: relative; flex: none; display: block; }
+.dropzone .preview-wrap .marks { inset: -7px; --l: 9px; --c: var(--ink-3); }
 .dropzone .preview {
   width: 66px; height: 66px;
   border-radius: 2px;
@@ -344,7 +351,7 @@ ul, ol { padding: 0; list-style: none; }
 .intake-actions { display: flex; align-items: center; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
 
 /* The rail teaches the pipeline instead of leaving the column empty. */
-.rail { padding: 22px; }
+.rail { padding: 22px; box-shadow: none; }
 .rail h2 { font-size: var(--t-h3); font-weight: 600; margin-bottom: 3px; }
 .rail > p { font-size: var(--t-sm); color: var(--ink-3); margin-bottom: 14px; }
 .rail ol { counter-reset: step; display: grid; }
@@ -600,7 +607,7 @@ dialog.lightbox {
   padding: 0;
   background: transparent;
   max-width: min(1180px, 94vw);
-  max-height: 92vh;
+  max-height: 92dvh;
   z-index: var(--z-dialog);
 }
 dialog.lightbox::backdrop { background: oklch(0.205 0.016 270 / 0.72); }
@@ -632,7 +639,7 @@ dialog.lightbox::backdrop { background: oklch(0.205 0.016 270 / 0.72); }
 }
 .lightbox-body img {
   width: 100%;
-  max-height: 60vh;
+  max-height: 60dvh;
   object-fit: contain;
   border-radius: 2px;
   background: var(--sunken);
@@ -699,6 +706,7 @@ dialog.lightbox::backdrop { background: oklch(0.205 0.016 270 / 0.72); }
   place-items: center;
 }
 .ref-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* width/height attributes are for box reservation only; the frame sets the size */
 .ref-missing { font-size: var(--t-xs); color: var(--ink-3); text-align: center; padding: 12px; }
 .ref figcaption { padding-top: 9px; display: grid; gap: 3px; }
 .ref-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -780,6 +788,40 @@ dialog.lightbox::backdrop { background: oklch(0.205 0.016 270 / 0.72); }
   .table td.c-blocked { grid-area: 3 / 2; justify-self: end; color: var(--ink-3); }
 }
 
+
+/* ============================================ touch, density, small screens */
+
+/* Body copy meets the 16px floor on phones and tablets; labels, chips and
+   mono meta are not body copy and stay compact so tables still read. */
+@media (max-width: 900px) {
+  :root {
+    --t-body: 1rem;        /* 16 */
+    --t-sm: 0.9375rem;     /* 15 */
+    --t-xs: 0.75rem;       /* 12, labels only */
+  }
+  .intake-lede { font-size: 1rem; }
+  .tile-cap .purpose { font-size: 1rem; }
+  .ev-list li, .tile .facts dd, .table .primary { font-size: 1rem; }
+}
+
+/* Coarse pointers get real targets. Sizing by input modality rather than by
+   width, because a touch laptop needs this and a narrow desktop window does not. */
+@media (pointer: coarse) {
+  .btn { min-height: 48px; }
+  .btn-sm { min-height: 44px; }
+  .navlink { min-height: 44px; display: inline-flex; align-items: center; }
+  .brand { min-height: 44px; }
+  .tab { min-height: 48px; }
+  .filter { min-height: 44px; padding: 8px 14px; }
+  .tile summary, .eventlog summary { min-height: 44px; }
+  .ref-src { min-height: 44px; line-height: 44px; }
+  .ev-pages td a { min-height: 44px; }
+  .table tbody tr { min-height: 44px; }
+  /* adjacency causes more mis-taps than size does */
+  .topbar nav { gap: 6px; }
+  .filters { gap: 8px; }
+}
+
 /* ================================================================ responsive */
 
 @media (max-width: 1080px) {
@@ -789,20 +831,25 @@ dialog.lightbox::backdrop { background: oklch(0.205 0.016 270 / 0.72); }
 }
 
 @media (max-width: 960px) {
-  .intake { grid-template-columns: 1fr; gap: 40px; }
-  .progress-grid { grid-template-columns: 1fr; gap: 30px; }
+  .intake { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .progress-grid { grid-template-columns: minmax(0, 1fr); gap: 30px; }
   .lightbox-body { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
-  .main { padding: 28px 16px 76px; }
-  .topbar { padding: 0 16px; gap: 10px; }
+  .main {
+    padding: 28px max(16px, env(safe-area-inset-right))
+             calc(76px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .topbar { padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left)); gap: 10px; }
   .keystate { display: none; }
   .gallery { grid-template-columns: 1fr; gap: 32px; }
   .tile--hero { grid-column: auto; }
   .tile--hero .frame { aspect-ratio: 1; }
   .tile--hero .tile-cap .purpose { font-size: var(--t-body); }
   .stats > div { padding: 0 18px; }
+  .navlink { padding: 8px 10px; }
+  .topbar nav { gap: 0; }
   :root { --t-hero: 1.875rem; --t-display: 1.5rem; }
 }
 

@@ -90,7 +90,14 @@ export default function Evidence({ runId, brandKit }) {
             <figure key={r.reference_id} className="ref">
               <div className="ref-frame">
                 {r.local_path
-                  ? <img src={base + r.local_path} alt={r.alt || r.reference_type} loading="lazy" />
+                  ? <img
+                      src={base + r.local_path}
+                      alt={r.alt || r.reference_type}
+                      loading="lazy"
+                      decoding="async"
+                      width={r.width ?? undefined}
+                      height={r.height ?? undefined}
+                    />
                   : <span className="ref-missing">not saved locally</span>}
               </div>
               <figcaption>

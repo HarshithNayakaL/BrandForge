@@ -40,7 +40,7 @@ export default function Intake({ onSubmit, error, keysReady }) {
   return (
     <div className="intake">
       <form onSubmit={submit}>
-        <h1>Six campaign shots, in someone else&rsquo;s brand language.</h1>
+        <h1>Six campaign shots, in someone else&rsquo;s brand language</h1>
         <p className="intake-lede">
           Point it at a brand&rsquo;s website and give it one photo of your product. It reads how
           that brand shoots, works out what cannot change about your product, then makes the
@@ -73,7 +73,12 @@ export default function Intake({ onSubmit, error, keysReady }) {
             onDrop={(e) => { e.preventDefault(); setOver(false); take(e.dataTransfer.files?.[0]); }}
           >
             {preview
-              ? <img className="preview" src={preview} alt="" />
+              ? (
+                <span className="preview-wrap">
+                  <img className="preview" src={preview} alt="" />
+                  <span className="marks" aria-hidden="true" />
+                </span>
+              )
               : (
                 <span className="slot" aria-hidden="true">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
