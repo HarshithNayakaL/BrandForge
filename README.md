@@ -20,7 +20,7 @@ product intelligence Gemini, product image only  →  Canonical Product Identity
    ↓
 campaign planner    →  six Shot Contracts
    ↓
-generation          gpt-image-2.5 edits, your photo as the anchor, 3 at a time
+generation          gpt-image-2.5-sunburst edits, your photo as the anchor, 3 at a time
    ↓
 multimodal QA       original vs generated, attribute by attribute
    ↓
@@ -217,7 +217,8 @@ Everything lives in `.env`; nothing is hardcoded.
 |---|---|---|
 | `GEMINI_MODEL` | `gemini-3.8-flash` | Brand, product, planning and QA reasoning |
 | `GEMINI_VISION_MODEL` | falls back to `GEMINI_MODEL` | Product analysis and QA, which are multimodal |
-| `OPENAI_IMAGE_MODEL` | `gpt-image-2.5` | Image generation |
+| `GEMINI_THINKING_LEVEL` | `low` | `low`, `medium` or `high`. 3.8 Flash thinks at `medium` by default; `minimal` is rejected by the API |
+| `OPENAI_IMAGE_MODEL` | `gpt-image-2.5-sunburst` | Image generation and editing. `gpt-image-2.5-flare` is the faster, cheaper sibling |
 | `MAX_CRAWL_PAGES` | `12` | Hard ceiling on pages visited |
 | `MAX_REFERENCE_IMAGES` | `24` | Ceiling on kept reference images |
 | `GENERATION_CONCURRENCY` | `3` | Parallel image generations |

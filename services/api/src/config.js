@@ -18,10 +18,18 @@ export const config = {
     apiKey: str('GEMINI_API_KEY'),
     model: str('GEMINI_MODEL', 'gemini-3.8-flash'),
     visionModel: str('GEMINI_VISION_MODEL', str('GEMINI_MODEL', 'gemini-3.8-flash')),
+    // 3.8 Flash thinks by default at "medium", which costs tokens and latency
+    // on every call. These stages do structured extraction against supplied
+    // evidence rather than open reasoning, so "low" is the right default.
+    // "minimal" is rejected by the API and must never be sent.
+    thinkingLevel: str('GEMINI_THINKING_LEVEL', 'low'),
   },
   openai: {
     apiKey: str('OPENAI_API_KEY'),
-    imageModel: str('OPENAI_IMAGE_MODEL', 'gpt-image-2.5'),
+    // sunburst is the 2.5 variant that supports editing, which this pipeline
+    // requires: every generation is anchored to the uploaded product photo.
+    // gpt-image-2.5-flare is the faster, cheaper sibling.
+    imageModel: str('OPENAI_IMAGE_MODEL', 'gpt-image-2.5-sunburst'),
     imageSize: str('OPENAI_IMAGE_SIZE', '1024x1024'),
     imageQuality: str('OPENAI_IMAGE_QUALITY', 'high'),
   },

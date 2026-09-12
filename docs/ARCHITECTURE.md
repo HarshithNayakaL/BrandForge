@@ -255,6 +255,29 @@ trustworthy product than six images pretending to have succeeded.
 
 ---
 
+## Model facts that constrain the code
+
+These were checked against current provider documentation rather than recalled, because the
+integration was originally written from a training snapshot that predates the models in use.
+
+**`gpt-image-2.5-sunburst`** is the image model. `gpt-image-2.5` alone is not a valid id; the 2.5
+family ships as `-sunburst` (most capable, generation and editing) and `-flare` (fast everyday).
+Sunburst is the default here because every generation is an *edit* anchored to the uploaded
+product photo, so editing support is not optional. `v1/images/generations` and `v1/images/edits`
+both remain supported and do not have to be routed through the Responses API, so the existing
+multipart request shape stands.
+
+**`gemini-3.8-flash`** thinks by default at `medium`. That is billed and adds latency on every
+call, and these stages do structured extraction against supplied evidence rather than open
+reasoning, so the default here is `low`, set through `GEMINI_THINKING_LEVEL`. **`minimal` is not a
+supported level and returns an error**, so the client filters any unrecognised value down to
+`low` rather than forwarding it and failing the call.
+
+**For the agent loop still to be built:** 3.8 Flash requires every `FunctionResponse` to carry
+both `call_id` and `name` on the `generateContent` API, multimodal assets to sit inside the
+response payload, and inline instructions to be separated by line breaks. Getting this wrong is a
+silent tool-calling failure rather than a clear error.
+
 ## State and observability
 
 Run state is file-backed under `data/runs/{run_id}/`. Deliberately not a database: the PRD's

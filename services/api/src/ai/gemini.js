@@ -20,6 +20,13 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
  */
 async function callGemini({ model, parts, temperature = 0.3, timeoutMs = 90_000, maxOutputTokens = 8192 }) {
   requireKey('gemini');
+
+  // Gemini 3.8 Flash thinks by default. "minimal" is not a supported level and
+  // returns an error, so an unrecognised value falls back to "low" rather than
+  // being forwarded and failing the whole call.
+  const level = ['low', 'medium', 'high'].includes(config.gemini.thinkingLevel)
+    ? config.gemini.thinkingLevel
+    : 'low';
   const url = `${BASE}/models/${model}:generateContent?key=${encodeURIComponent(config.gemini.apiKey)}`;
   const body = {
     contents: [{ role: 'user', parts }],
@@ -27,6 +34,8 @@ async function callGemini({ model, parts, temperature = 0.3, timeoutMs = 90_000,
       temperature,
       maxOutputTokens,
       responseMimeType: 'application/json',
+      // proto3 JSON accepts either casing; this matches the rest of the block
+      thinkingLevel: level,
     },
     safetySettings: [],
   };

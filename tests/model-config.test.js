@@ -13,9 +13,19 @@ import path from 'node:path';
 const configSrc = fs.readFileSync(path.join('services', 'api', 'src', 'config.js'), 'utf8');
 const envExample = fs.readFileSync('.env.example', 'utf8');
 
-test('the image model default is gpt-image-2.5 in code and in .env.example', () => {
-  assert.match(configSrc, /str\('OPENAI_IMAGE_MODEL',\s*'gpt-image-2\.5'\)/);
-  assert.match(envExample, /^OPENAI_IMAGE_MODEL=gpt-image-2\.5$/m);
+test('the image model default is the editing-capable 2.5 variant', () => {
+  // The pipeline anchors every generation to the uploaded photo through the
+  // edits endpoint, so the model chosen has to support editing.
+  assert.match(configSrc, /str\('OPENAI_IMAGE_MODEL',\s*'gpt-image-2\.5-sunburst'\)/);
+  assert.match(envExample, /^OPENAI_IMAGE_MODEL=gpt-image-2\.5-sunburst$/m);
+});
+
+test('the thinking level is configurable and never sends the rejected value', () => {
+  const geminiSrc = fs.readFileSync(path.join('services', 'api', 'src', 'ai', 'gemini.js'), 'utf8');
+  assert.match(configSrc, /thinkingLevel:\s*str\('GEMINI_THINKING_LEVEL',\s*'low'\)/);
+  // "minimal" is not a supported level and errors, so it must be filtered out
+  assert.match(geminiSrc, /\['low', 'medium', 'high'\]\.includes/);
+  assert.doesNotMatch(geminiSrc, /thinkingLevel:\s*'minimal'/);
 });
 
 test('the vision model falls back to the text model rather than to a literal', () => {
