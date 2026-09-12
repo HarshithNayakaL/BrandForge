@@ -2,7 +2,9 @@
 
 ## Register
 
-**Product.** Design serves the task. This is an internal tool someone works *in*, not a page they read. Familiarity is a feature; the interface should disappear into the job.
+**Product.** Design serves the task. Someone works *in* this, they do not read it.
+
+But serving the task is the floor, not the ceiling. An earlier pass took "tool" literally and shipped something that looked unfinished: light on light, no identity, six identical tiles, and grey rectangles during the longest screen. The interface should feel like a product that was actually designed and shipped, while every element still earns its place by serving the judgement the user came to make.
 
 ## Users & purpose
 
@@ -27,6 +29,7 @@ Two more, learned from the first attempt:
 
 - **Not a magazine.** The first version used a display serif for UI labels, fluid clamp headings and a cream body. That is brand-register grammar applied to a tool, and it read as empty rather than considered.
 - **Not a terminal.** The obvious over-correction from cream is neon-on-black developer chic. Also wrong: this is a visual-review surface, not a console.
+- **Not a dashboard-shaped SaaS clone.** Dark sidebar, rounded card grid, indigo everywhere is the next reflex after those two. The identity here comes from photographic production language (crop marks, frame numbers, contact-sheet rhythm), which is true to the subject rather than borrowed from the category.
 
 ## Strategic design principles
 

@@ -188,7 +188,15 @@ for (const vp of WIDTHS) {
   await audit('results-partial');
   await shot('08-results-partial');
 
-  // 9. failed run
+  // 9. a run in flight: the waiting screen, the longest-lived in the product
+  await page.click('text=History');
+  await page.waitForTimeout(700);
+  await page.click('text=run_fixture_running');
+  await page.waitForTimeout(1600);
+  await audit('progress');
+  await shot('12-progress');
+
+  // 10. failed run
   await page.click('text=History');
   await page.waitForTimeout(700);
   await page.click('text=run_fixture_failed');

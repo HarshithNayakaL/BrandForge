@@ -74,7 +74,8 @@ Every screen can be reviewed with no keys and no network:
 npm run fixtures
 ```
 
-This seeds three local runs (completed, partial with a blocked shot, failed). Their imagery is
+This seeds four local runs (completed, partial with a blocked shot, one frozen mid-generation
+so the waiting screen is reviewable, and failed). Their imagery is
 composed locally with Playwright from a product photo already on disk. It is **not** model
 output and never pretends to be: run ids are prefixed `run_fixture_`, the manifest carries
 `"fixture": true`, and the model fields read `fixture (composed locally)`.
@@ -97,7 +98,7 @@ One command, no keys, no external network. Eight groups:
 
 | Group | What it proves |
 |---|---|
-| Palette contrast | 15 text/background pairs at WCAG AA |
+| Palette contrast | 20 text/background pairs at WCAG AA, including the dark app bar |
 | Unit tests | 52 tests over the deterministic parts |
 | Production build | the frontend actually builds |
 | n8n workflow build | the importable JSON regenerates |

@@ -40,10 +40,11 @@ export default function Intake({ onSubmit, error, keysReady }) {
   return (
     <div className="intake">
       <form onSubmit={submit}>
-        <h1 className="page-title">Turn a product photo into a brand-aligned campaign</h1>
+        <h1>Six campaign shots, in someone else&rsquo;s brand language.</h1>
         <p className="intake-lede">
-          Give it a brand&rsquo;s website and one product image. It does the research, the art
-          direction and the quality control itself.
+          Point it at a brand&rsquo;s website and give it one photo of your product. It reads how
+          that brand shoots, works out what cannot change about your product, then makes the
+          images and checks every one against your original.
         </p>
 
         <div className="field">
@@ -113,8 +114,8 @@ export default function Intake({ onSubmit, error, keysReady }) {
       </form>
 
       <aside className="rail panel">
-        <h2>What happens next</h2>
-        <p>Six stages, about two to four minutes.</p>
+        <h2>What it does with them</h2>
+        <p>Six stages, two to four minutes.</p>
         <ol>
           {STEPS.map((s) => <li key={s}><span>{s}</span></li>)}
         </ol>

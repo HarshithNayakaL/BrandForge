@@ -4,6 +4,7 @@ import Intake from './components/Intake.jsx';
 import Progress from './components/Progress.jsx';
 import Results from './components/Results.jsx';
 import History from './components/History.jsx';
+import Logo from './components/Logo.jsx';
 
 export default function App() {
   const [view, setView] = useState('intake');   // intake | progress | results | history
@@ -90,10 +91,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <button className="brand" onClick={home}>
-          <span className="mark" aria-hidden="true">B</span>
-          BrandForge
-        </button>
+        <button className="brand" onClick={home} aria-label="BrandForge, go to new campaign">
+          <Logo />
+          <span className="wordmark"><b>Brand</b><span>Forge</span></span>        </button>
 
         {health && (
           <div className={`keystate${keysReady ? '' : ' off'}`}>

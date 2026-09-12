@@ -58,6 +58,13 @@ const P = {
   ok:            [0.500, 0.110, 155],
   warn:          [0.520, 0.110, 70],
   danger:        [0.520, 0.170, 25],
+
+  // app shell (dark chrome above the light working canvas)
+  shell:         [0.205, 0.016, 270],
+  'shell-2':     [0.285, 0.016, 270],
+  'on-shell':    [0.970, 0.003, 270],
+  'on-shell-2':  [0.740, 0.014, 270],
+  'accent-lift': [0.720, 0.150, 270],
 };
 
 console.log('\n  token          oklch                       hex');
@@ -80,6 +87,11 @@ const pairs = [
   ['ok on surface', P.ok, P.surface, 4.5],
   ['warn on surface', P.warn, P.surface, 4.5],
   ['danger on surface', P.danger, P.surface, 4.5],
+  ['on-shell on shell', P['on-shell'], P.shell, 4.5],
+  ['on-shell-2 on shell (muted nav)', P['on-shell-2'], P.shell, 4.5],
+  ['on-shell-2 on shell-2 (nav hover)', P['on-shell-2'], P['shell-2'], 4.5],
+  ['on-shell on shell-2', P['on-shell'], P['shell-2'], 4.5],
+  ['accent-lift on shell (active nav)', P['accent-lift'], P.shell, 4.5],
   ['line-strong on bg (UI boundary 3:1)', P['line-strong'], P.bg, 3.0],
   ['line on bg (decorative separator)', P.line, P.bg, 1.15],
 ];

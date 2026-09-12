@@ -2,13 +2,24 @@
 
 ## Theme
 
-Light, neutral, product-register. A near-white shell at effectively zero chroma so nothing on screen biases how the user perceives colour in the photography they are judging. The single hue in the system (indigo, 270°) appears only in actions and live state; the neutrals carry a trace of it (chroma 0.002–0.014) so greys read as intentional rather than default.
+A dark app shell above a near-white working canvas.
 
-Explicitly not cream, sand, paper or parchment. Explicitly not dark terminal chic.
+The chrome is dark so the product has an identity the moment it loads; the canvas stays at effectively zero chroma so nothing biases how the user perceives colour in the photography they are judging. The single hue in the system (indigo, 270°) appears in actions, live state and the mark; the neutrals carry a trace of it (chroma 0.002–0.016) so greys read as intentional rather than default.
+
+Explicitly not cream, sand, paper or parchment. Explicitly not dark terminal chic, and not a dark-sidebar SaaS clone: the dark band is a slim top bar, and the identity is carried by the production language below it.
+
+## Signature: production language
+
+The subject of this product is photography and verification, so the interface borrows from how photographic work is actually marked up, not from dashboard convention.
+
+- **Crop marks.** Thin corner brackets sitting *outside* the hero frame, the way a contact sheet or print proof is marked. One device, used once per screen, never decoratively.
+- **Frame numbers.** `SHOT_01`–`SHOT_06` in mono, on every frame and slot, the way a contact sheet is indexed.
+- **Contact-sheet rhythm.** The gallery is a hero frame spanning two rows plus five supporting frames, not six identical cards. Frames use a 3px radius so they read as photographs, not as UI cards.
+- **The mark** is an aperture inside a frame with its corners cut away, echoing the crop marks at 22px.
 
 ## Color
 
-All values OKLCH. Contrast verified by `scripts/check-contrast.mjs` (15/15 pass, AA).
+All values OKLCH. Contrast verified by `scripts/check-contrast.mjs` (20/20 pass, AA), including every pair used on the dark shell.
 
 | Token | OKLCH | Hex | Role |
 |---|---|---|---|
@@ -25,18 +36,24 @@ All values OKLCH. Contrast verified by `scripts/check-contrast.mjs` (15/15 pass,
 | `--ok` | `0.500 0.110 155` | `#1e7546` | Accepted |
 | `--warn` | `0.520 0.110 70` | `#915c08` | Partial |
 | `--danger` | `0.520 0.170 25` | `#b63132` | Blocked, failed |
+| `--shell` | `0.205 0.016 270` | | App bar ground |
+| `--shell-2` | `0.285 0.016 270` | | App bar hover and active |
+| `--on-shell` | `0.970 0.003 270` | | App bar text, 16.43:1 |
+| `--on-shell-2` | `0.740 0.014 270` | | App bar muted text, 7.77:1 |
+| `--accent-lift` | `0.720 0.150 270` | | The mark and focus rings on dark, 7.03:1 |
 
 Strategy: **Restrained.** Accent covers well under 10% of any screen. Semantic colours appear only on status, never as decoration.
 
 ## Typography
 
-One family: **Inter** (variable), with a system fallback stack. Mono (`ui-monospace`) for run ids, timestamps and scores only. No display face anywhere: this is a tool, and a serif in a UI label was the previous design's core mistake.
+Two faces: **Inter** for everything in the interface, and **IBM Plex Mono** for run ids, frame numbers, timestamps and scores. The mono is not a developer affectation here; it is how frames and takes are labelled in production, and it keeps digits aligned in the score columns. No display face anywhere: a serif in a UI label was the first design's core mistake.
 
 Fixed rem scale, ratio ≈1.2. Not fluid: users view at consistent DPI and a clamped heading that shrinks inside a panel looks worse, not better.
 
 | Step | Size | Weight | Use |
 |---|---|---|---|
-| `--t-display` | 30px | 600 | Page title (one per screen) |
+| `--t-hero` | 42px | 600 | The intake headline, the one place the product speaks first |
+| `--t-display` | 32px | 600 | Page title (one per screen) |
 | `--t-h2` | 20px | 600 | Section heading |
 | `--t-h3` | 15px | 600 | Panel heading, shot title |
 | `--t-body` | 14px | 400 | Body, form values |
@@ -47,10 +64,10 @@ Labels use sentence case at 12px/500 with modest tracking, not the wide-tracked 
 
 ## Layout
 
-- App shell: sticky 56px top bar, content in a 1240px container with 24–32px gutters.
+- App shell: sticky 60px dark top bar, content in a 1280px container with 24px gutters.
 - Grid for 2D (gallery, shot slots), flex for 1D (toolbars, meta rows).
-- Gallery: `repeat(auto-fill, minmax(300px, 1fr))`, so it reflows without breakpoints.
-- Radius scale: 6px (controls), 10px (panels), 14px (image frames).
+- Gallery: a fixed 3-column grid so the hero can span 2×2; it collapses to 2 columns under 1080px and 1 under 700px. The waiting grid and the evidence grid stay `auto-fill` since neither has a hero.
+- Radius scale: 6px (controls), 10px (panels), 3px (image frames, so they read as photographs).
 - Elevation is restrained: 1px `--line` plus a single soft shadow token. No glass, no gradients.
 
 ## Components
@@ -64,6 +81,8 @@ Every interactive has default / hover / focus-visible / active / disabled, and l
 - **Shot tile**: skeleton → image, with a status chip and score. Blocked tiles desaturate the image and keep full layout weight.
 - **Lightbox**: native `<dialog>`, generated image beside the original product photo for fidelity comparison.
 - **Empty states** teach the pipeline rather than saying "nothing here".
+- **Waiting screen**: the longest-lived screen in the product. Slots fill with the real frame as each shot clears QA, carrying its accuracy score, so the wait shows work arriving rather than a progress bar.
+- **Hero frame**: the first shot that actually passed. A blocked frame never gets top billing, however good it looks.
 
 ## Motion
 

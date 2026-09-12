@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { STAGES, STAGE_ORDER, fmtDuration } from '../lib/api.js';
 
 /**
- * Every mark below is derived from the run's real status and its event log.
- * Stages ahead of the server are never shown as done, and no timer advances
- * the display on its own.
+ * This is the longest-lived screen in the product: a run takes minutes. So it
+ * shows the work arriving (real frames as each shot clears QA) rather than a
+ * spinner. Every mark is derived from server state; nothing advances on a timer.
  */
 export default function Progress({ status, error }) {
   const [now, setNow] = useState(Date.now());
@@ -38,7 +38,9 @@ export default function Progress({ status, error }) {
   };
 
   const p = status.progress ?? { generated: 0, total: 6, accepted: 0, blocked: 0 };
-  const slots = Array.from({ length: p.total || 6 }, (_, i) => i);
+  const total = p.total || 6;
+  const byId = new Map((status.shots ?? []).map((s) => [s.shot_id, s]));
+  const base = status.assets_base ?? '';
 
   return (
     <div>
@@ -52,12 +54,13 @@ export default function Progress({ status, error }) {
             <span className="mono">{elapsed} elapsed</span>
           </div>
         </div>
-        {!failed && <span className="chip chip-accent"><span className="spinner" aria-hidden="true" />Running</span>}
-        {failed && <span className="chip chip-danger">{status.failure_code}</span>}
+        {failed
+          ? <span className="chip chip-danger">{status.failure_code}</span>
+          : <span className="chip chip-accent"><span className="spinner" aria-hidden="true" />Running</span>}
       </div>
 
       {failed && (
-        <p className="alert" role="alert" style={{ marginBottom: 28, marginTop: 0 }}>
+        <p className="alert" role="alert" style={{ marginTop: 0, marginBottom: 28 }}>
           <strong>{status.failure_code}</strong> {status.error}
         </p>
       )}
@@ -68,15 +71,15 @@ export default function Progress({ status, error }) {
             const idx = STAGE_ORDER.indexOf(s.key);
             const done = current > idx;
             const active = status.status === s.key;
-            const isFailedHere = failed && current === idx;
+            const failedHere = failed && current === idx;
             return (
-              <li key={s.key} className={`stage${isFailedHere ? ' failed' : done ? ' done' : active ? ' active' : ''}`}>
+              <li key={s.key} className={`stage${failedHere ? ' failed' : done ? ' done' : active ? ' active' : ''}`}>
                 <span className="mark" aria-hidden="true">
                   {active && !failed && <span className="spinner" />}
                 </span>
                 <span>{s.label}</span>
                 <span className="tail">
-                  {s.key === 'GENERATING' && (active || done) ? `${p.generated}/${p.total}` : spanFor(s.key)}
+                  {s.key === 'GENERATING' && (active || done) ? `${p.generated}/${total}` : spanFor(s.key)}
                 </span>
               </li>
             );
@@ -85,12 +88,21 @@ export default function Progress({ status, error }) {
 
         <div>
           <div className="slot-grid">
-            {slots.map((i) => {
-              const filled = i < p.generated;
+            {Array.from({ length: total }, (_, i) => {
+              const id = `SHOT_0${i + 1}`;
+              const shot = byId.get(id);
+              const done = Boolean(shot?.output);
+              const blocked = shot && shot.status !== 'ACCEPTED';
               return (
-                <div key={i} className={`slot${filled ? '' : ' pending'}`}>
+                <div key={id} className={`slot${done ? '' : ' pending'}${blocked ? ' blocked' : ''}`}>
+                  {done && <img src={base + shot.output} alt={`${id} result`} />}
                   <span className="slot-label">
-                    SHOT_0{i + 1}{filled ? ' · done' : ''}
+                    <span>{id}</span>
+                    <span>
+                      {shot
+                        ? (blocked ? 'blocked' : `${shot.product_accuracy ?? '–'}/10`)
+                        : ''}
+                    </span>
                   </span>
                 </div>
               );

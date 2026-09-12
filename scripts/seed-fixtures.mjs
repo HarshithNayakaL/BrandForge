@@ -396,6 +396,7 @@ const PRODUCT_IDENTITY = {
 const RUN_DEFS = [
   { id: `${PREFIX}complete`, kind: 'complete', status: 'COMPLETED' },
   { id: `${PREFIX}partial`, kind: 'partial', status: 'PARTIAL' },
+  { id: `${PREFIX}running`, kind: 'running', status: 'GENERATING' },
   { id: `${PREFIX}failed`, kind: 'failed', status: 'FAILED' },
 ];
 
@@ -450,6 +451,73 @@ for (const def of RUN_DEFS) {
 
     cleanIndex.unshift({ run_id: def.id, brand_url: 'https://fixture-brand.example', brand: null, product_category: null, status: 'FAILED', created_at: createdAt, accepted: 0, blocked: 0 });
     console.log(`seeded ${def.id} (failure state)`);
+    continue;
+  }
+
+  if (def.kind === 'running') {
+    // Three shots through QA, three still to come.
+    const shots = buildShots('complete').slice(0, 3);
+    for (const [i, sc] of SCENES.slice(0, 3).entries()) {
+      await page.setContent(sceneHtml(sc), { waitUntil: 'load' });
+      const buf = await page.locator('.stage').screenshot({ type: 'png' });
+      const f = path.join(dir, 'final', `${sc.id.toLowerCase()}.png`);
+      await fsp.mkdir(path.dirname(f), { recursive: true });
+      await fsp.writeFile(f, buf);
+      const g = path.join(dir, shots[i].generation_attempts[0].output_path);
+      await fsp.mkdir(path.dirname(g), { recursive: true });
+      await fsp.writeFile(g, buf);
+    }
+    await fsp.mkdir(path.join(dir, 'campaign'), { recursive: true });
+    await fsp.writeFile(path.join(dir, 'campaign', 'shot-results.json'), JSON.stringify(shots, null, 2));
+
+    const evidence = await buildEvidence(page, dir);
+    await fsp.mkdir(path.join(dir, 'crawl'), { recursive: true });
+    await fsp.writeFile(path.join(dir, 'crawl', 'evidence.json'), JSON.stringify(evidence, null, 2));
+    await fsp.mkdir(path.join(dir, 'intelligence'), { recursive: true });
+    await fsp.writeFile(path.join(dir, 'intelligence', 'brand-kit.json'), JSON.stringify(BRAND_KIT, null, 2));
+    await fsp.writeFile(path.join(dir, 'intelligence', 'product-identity.json'), JSON.stringify(PRODUCT_IDENTITY, null, 2));
+
+    const startedAt = new Date(Date.now() - 132000).toISOString();
+    await fsp.writeFile(path.join(dir, 'state.json'), JSON.stringify({
+      run_id: def.id,
+      status: 'GENERATING',
+      stage: 'Completed 3 / 6',
+      progress: { generated: 3, total: 6, accepted: 3, blocked: 0 },
+      input: { brand_url: 'https://fixture-brand.example', product_asset_id: 'pa_fixture0000000', product_mime: 'image/png', workflow_version: 'brandforge-1.0.0', timestamp: startedAt },
+      brand: 'Fixture Brand',
+      product_category: 'footwear',
+      error: null,
+      failure_code: null,
+      created_at: startedAt,
+      updated_at: new Date().toISOString(),
+      completed_at: null,
+      usage: { image_generations: 4, repairs: 1, gemini_calls: 8, crawl_pages: 9 },
+      errors: [],
+      fixture: true,
+    }, null, 2));
+
+    const evs = [
+      { event: 'RUN_CREATED' }, { event: 'INPUT_VALIDATED' }, { event: 'CRAWL_STARTED' },
+      { event: 'CRAWL_COMPLETED' }, { event: 'BRAND_KIT_ANALYSIS_STARTED' }, { event: 'BRAND_KIT_CREATED' },
+      { event: 'PRODUCT_ANALYSIS_STARTED' }, { event: 'PRODUCT_ANALYZED' }, { event: 'CAMPAIGN_PLANNED' },
+      { event: 'SHOT_GENERATION_STARTED', shot_id: 'SHOT_01' }, { event: 'SHOT_GENERATED', shot_id: 'SHOT_01' },
+      { event: 'SHOT_QA_PASSED', shot_id: 'SHOT_01', decision: 'PASS' }, { event: 'SHOT_ACCEPTED', shot_id: 'SHOT_01' },
+      { event: 'SHOT_GENERATED', shot_id: 'SHOT_02' }, { event: 'SHOT_QA_FAILED', shot_id: 'SHOT_02', decision: 'REPAIR' },
+      { event: 'SHOT_REPAIR_STARTED', shot_id: 'SHOT_02' }, { event: 'SHOT_ACCEPTED', shot_id: 'SHOT_02' },
+      { event: 'SHOT_GENERATED', shot_id: 'SHOT_03' }, { event: 'SHOT_ACCEPTED', shot_id: 'SHOT_03' },
+      { event: 'SHOT_GENERATION_STARTED', shot_id: 'SHOT_04' },
+    ];
+    await fsp.writeFile(path.join(dir, 'events.ndjson'),
+      evs.map((e, i) => JSON.stringify({
+        svc: 'api', run_id: def.id, ...e,
+        at: new Date(Date.parse(startedAt) + i * 6000).toISOString(),
+      })).join('\n') + '\n');
+
+    cleanIndex.unshift({
+      run_id: def.id, brand_url: 'https://fixture-brand.example', brand: 'Fixture Brand',
+      product_category: 'footwear', status: 'GENERATING', created_at: startedAt, accepted: 3, blocked: 0,
+    });
+    console.log(`seeded ${def.id} (mid-run, 3/6 done)`);
     continue;
   }
 

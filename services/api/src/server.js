@@ -98,7 +98,20 @@ app.get('/api/campaign/:runId/status', async (req, res) => {
   const state = await safeGetRun(req, res);
   if (!state) return;
   const events = await tailEvents(state.run_id, 40);
+
+  // Shots that have already finished, so the waiting screen can show real
+  // frames arriving instead of six grey rectangles.
+  const partial = (await readRunArtifact(state.run_id, 'campaign/shot-results.json', [])) ?? [];
+  const shots = partial.map((r) => ({
+    shot_id: r.shot_id,
+    status: r.status,
+    output: r.output,
+    product_accuracy: r.qa?.product_accuracy ?? null,
+  }));
+
   res.json({
+    shots,
+    assets_base: `/api/campaign/${state.run_id}/asset/`,
     run_id: state.run_id,
     status: state.status,
     stage: state.stage,
