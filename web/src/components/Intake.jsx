@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { api } from '../lib/api.js';
 
 const STEPS = [
   'Crawls the brand site for real photography and copy',
@@ -9,13 +10,24 @@ const STEPS = [
   'Reviews each one and repairs or blocks failures',
 ];
 
-export default function Intake({ onSubmit, error, keysReady }) {
+export default function Intake({ onSubmit, error, keysReady, onOpenRun }) {
+  const [recent, setRecent] = useState([]);
   const [url, setUrl] = useState('');
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [over, setOver] = useState(false);
   const [busy, setBusy] = useState(false);
   const input = useRef(null);
+
+  // The rail would otherwise run out of content halfway down the column.
+  // These are real runs, and they are the fastest way back into one.
+  useEffect(() => {
+    let cancelled = false;
+    api.runs()
+      .then((r) => { if (!cancelled) setRecent((r.runs ?? []).slice(0, 4)); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   // Object URLs leak if they are not revoked when the selection changes.
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -118,12 +130,41 @@ export default function Intake({ onSubmit, error, keysReady }) {
         )}
       </form>
 
-      <aside className="rail panel">
-        <h2>What it does with them</h2>
-        <p>Six stages, two to four minutes.</p>
+      <aside className="rail">
+        <h2 className="h2">Sequence</h2>
+        <p>Six stages / 2 to 4 min</p>
         <ol>
           {STEPS.map((s) => <li key={s}><span>{s}</span></li>)}
         </ol>
+
+        {recent.length > 0 && (
+          <div className="recent">
+            <h2 className="h2">Recent</h2>
+            <ul>
+              {recent.map((r) => (
+                <li key={r.run_id}>
+                  <button onClick={() => onOpenRun?.(r.run_id)}>
+                    <span className="rc-brand">{r.brand ?? new URL(r.brand_url).hostname}</span>
+                    <span className="rc-id">{r.run_id.replace('run_', '')}</span>
+                    <span className={`rc-status${r.status === 'FAILED' ? ' bad' : ''}`}>{r.status}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="spec">
+          <h2 className="h2">Specification</h2>
+          <dl>
+            <dt>Input</dt><dd>URL + 1 image</dd>
+            <dt>Formats</dt><dd>JPEG / PNG / WEBP</dd>
+            <dt>Max size</dt><dd>12 MB</dd>
+            <dt>Output</dt><dd>6 frames + manifest</dd>
+            <dt>Verification</dt><dd>Per frame, vs original</dd>
+            <dt>Repairs</dt><dd>2 max, then blocked</dd>
+          </dl>
+        </div>
       </aside>
     </div>
   );

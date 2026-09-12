@@ -5,6 +5,7 @@ import Progress from './components/Progress.jsx';
 import Results from './components/Results.jsx';
 import History from './components/History.jsx';
 import Logo from './components/Logo.jsx';
+import Telemetry from './components/Telemetry.jsx';
 
 export default function App() {
   const [view, setView] = useState('intake');   // intake | progress | results | history
@@ -122,8 +123,10 @@ export default function App() {
         </nav>
       </header>
 
+      <Telemetry health={health} status={view === 'progress' ? status : null} />
+
       <main className="main">
-        {view === 'intake' && <Intake onSubmit={start} error={error} keysReady={keysReady} />}
+        {view === 'intake' && <Intake onSubmit={start} error={error} keysReady={keysReady} onOpenRun={openRun} />}
         {view === 'progress' && <Progress status={status} error={error} />}
         {view === 'results' && campaign && <Results campaign={campaign} onNew={home} />}
         {view === 'history' && <History onOpen={openRun} onNew={home} />}

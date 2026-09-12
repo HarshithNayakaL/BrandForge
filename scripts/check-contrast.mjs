@@ -45,38 +45,19 @@ const toHex = (c) => {
 
 // --- palette (hue 270, the seeded indigo; neutrals carry only a trace of it)
 const P = {
-  // Canvas: tinted, not neutral. Gen Z design rejects the white/grey default,
-  // but frames keep a neutral mat so photo colour stays judgeable.
-  paper:         [0.970, 0.020, 305],
-  surface:       [0.995, 0.006, 305],
-  mat:           [0.965, 0.003, 305],   // inside image frames only
-  ink:           [0.200, 0.035, 305],
-  'ink-2':       [0.430, 0.035, 305],
-  'ink-3':       [0.520, 0.030, 305],
-  line:          [0.880, 0.020, 305],
-  'line-strong': [0.580, 0.035, 305],
-
-  // Print registration colours, used as real signal not decoration
-  cyan:          [0.600, 0.150, 230],   // registration marks, never text
-  'cyan-ink':    [0.520, 0.130, 230],   // when cyan has to carry text
-  magenta:       [0.570, 0.240, 350],
-  'magenta-ink': [0.490, 0.210, 350],   // chip text on a magenta tint
-  'magenta-lt':  [0.940, 0.050, 350],
-  yellow:        [0.860, 0.170, 95],
-  lime:          [0.780, 0.200, 140],
-  'lime-ink':    [0.480, 0.140, 145],
-  'lime-lt':     [0.950, 0.060, 140],
-  'red':         [0.560, 0.220, 25],
-  'red-ink':     [0.500, 0.200, 27],
-  'red-lt':      [0.945, 0.050, 25],
-  'amber-ink':   [0.530, 0.150, 70],
-  'amber-lt':    [0.950, 0.080, 80],
-
-  shell:         [0.200, 0.035, 305],
-  'shell-2':     [0.290, 0.040, 305],
-  'on-shell':    [0.970, 0.010, 305],
-  'on-shell-2':  [0.760, 0.030, 305],
+  // Swiss Industrial Print: matte unbleached documentation paper, carbon ink,
+  // one hazard red. No second accent, no tints.
+  paper:         [0.958, 0.004, 95],    // #F4F4F0 newsprint
+  paper2:        [0.925, 0.005, 95],    // #EAE8E3 second substrate
+  mat:           [0.945, 0.000, 0],     // inside image frames only, neutral
+  ink:           [0.150, 0.002, 95],    // carbon
+  'ink-2':       [0.400, 0.003, 95],
+  'ink-3':       [0.498, 0.004, 95],
+  rule:          [0.150, 0.002, 95],    // structural lines are ink, not grey
+  red:           [0.528, 0.220, 27],    // aviation hazard
+  'red-hot':     [0.650, 0.210, 27],   // only on carbon, never on paper
 };
+
 
 
 console.log('\n  token          oklch                       hex');
@@ -87,29 +68,19 @@ for (const [k, v] of Object.entries(P)) {
 
 const pairs = [
   ['ink on paper', P.ink, P.paper, 4.5],
-  ['ink on surface', P.ink, P.surface, 4.5],
+  ['ink on paper2', P.ink, P.paper2, 4.5],
   ['ink on mat', P.ink, P.mat, 4.5],
   ['ink-2 on paper (body)', P['ink-2'], P.paper, 4.5],
-  ['ink-3 on paper (labels)', P['ink-3'], P.paper, 4.5],
-  ['ink-3 on surface', P['ink-3'], P.surface, 4.5],
-  ['white on magenta', [1, 0, 0], P.magenta, 4.5],
-  ['magenta on paper (link/active)', P.magenta, P.paper, 4.5],
-  ['magenta-ink on magenta-lt (chip)', P['magenta-ink'], P['magenta-lt'], 4.5],
-  ['cyan-ink on paper (text)', P['cyan-ink'], P.paper, 4.5],
-  ['cyan mark on paper (non-text 3:1)', P.cyan, P.paper, 3.0],
-  ['ink on lime (accept btn)', P.ink, P.lime, 4.5],
-  ['lime-ink on lime-lt (accepted chip)', P['lime-ink'], P['lime-lt'], 4.5],
-  ['red-ink on red-lt (blocked chip)', P['red-ink'], P['red-lt'], 4.5],
-  ['red on paper', P.red, P.paper, 4.5],
-  ['amber-ink on amber-lt (partial chip)', P['amber-ink'], P['amber-lt'], 4.5],
-  ['ink on yellow (highlight)', P.ink, P.yellow, 4.5],
-  ['on-shell on shell', P['on-shell'], P.shell, 4.5],
-  ['on-shell-2 on shell', P['on-shell-2'], P.shell, 4.5],
-  ['on-shell-2 on shell-2', P['on-shell-2'], P['shell-2'], 4.5],
-  ['lime on shell (mark)', P.lime, P.shell, 4.5],
-  ['line-strong on paper (UI boundary 3:1)', P['line-strong'], P.paper, 3.0],
-  ['line on paper (separator)', P.line, P.paper, 1.15],
+  ['ink-3 on paper (metadata)', P['ink-3'], P.paper, 4.5],
+  ['ink-3 on paper2', P['ink-3'], P.paper2, 4.5],
+  ['red on paper (alert text)', P.red, P.paper, 4.5],
+  ['red on paper2', P.red, P.paper2, 4.5],
+  ['paper on ink (inverted block)', P.paper, P.ink, 4.5],
+  ['paper on red (hazard block)', P.paper, P.red, 4.5],
+  ['red on ink (terminal accent)', P['red-hot'], P.ink, 4.5],
+  ['rule on paper (2px structure 3:1)', P.rule, P.paper, 3.0],
 ];
+
 
 
 console.log('\n  pair                            ratio   need   result');
