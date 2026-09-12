@@ -21,7 +21,7 @@ export const config = {
   },
   openai: {
     apiKey: str('OPENAI_API_KEY'),
-    imageModel: str('OPENAI_IMAGE_MODEL', 'gpt-image-1'),
+    imageModel: str('OPENAI_IMAGE_MODEL', 'gpt-image-2.5'),
     imageSize: str('OPENAI_IMAGE_SIZE', '1024x1024'),
     imageQuality: str('OPENAI_IMAGE_QUALITY', 'high'),
   },
