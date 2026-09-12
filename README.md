@@ -178,6 +178,36 @@ Apparel*. The positioning shift is visible without a paid data source.
 
 ---
 
+## How the system decides what it knows
+
+A model asked about a brand will answer confidently whether or not it has ever
+seen that brand. That is the single largest source of invented brand facts, so
+the decision is taken from data rather than from the model's own sense of
+familiarity.
+
+`lookup-brand` settles it: an established brand has a Wikipedia article **and**
+a Wikidata entity, an unknown one has neither. Allbirds resolves to `Q30591057`
+with its official URL attached; an invented brand comes back `established:
+false`.
+
+The rule that follows is the one to preserve:
+
+> **Recall is a search prior, never evidence.**
+
+If the model believes a brand shoots on-model, that belief may send the crawler
+to the right pages. The claim only enters the Brand Kit once a fetched page
+supports it. Known brands get the speed benefit of the model knowing where to
+look, without the Brand Kit inheriting a training snapshot that is a year
+stale. Unknown brands simply have no prior, so everything is discovered by
+fetching.
+
+Social feeds are not scraped. Instagram, TikTok and X are auth-walled and
+prohibit automated collection, so a scraper aimed at them would be unreliable
+as well as out of bounds. Handles are read from the brand's own footer instead,
+and which platforms a brand invests in is itself a signal about how it posts.
+
+---
+
 ## Configuration
 
 Everything lives in `.env`; nothing is hardcoded.
