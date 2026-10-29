@@ -5,6 +5,8 @@ works out what cannot change about your product, plans its own campaign, generat
 brand-aligned images, checks its own work, repairs what it can and refuses what it cannot
 safely fix.
 
+**Case study:** [harshith-nayaka-l-portfolio.vercel.app/work/brandforge](https://harshith-nayaka-l-portfolio.vercel.app/work/brandforge): the problem, the architecture and the engineering decisions behind BrandForge.
+
 Then give it a completely different brand without editing anything.
 
 ```
